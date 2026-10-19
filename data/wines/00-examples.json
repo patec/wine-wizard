@@ -1,0 +1,54 @@
+[
+  {
+    "slug": "chateau-lynch-bages-pauillac",
+    "name": "Château Lynch-Bages",
+    "producer": "Château Lynch-Bages",
+    "type": "red",
+    "country": "France",
+    "region": "Bordeaux",
+    "appellation": "Pauillac",
+    "grapes": ["Cabernet Sauvignon", "Merlot", "Cabernet Franc", "Petit Verdot"],
+    "price": 165,
+    "abv": 13.5,
+    "elevage": "18 months in French oak, ~70% new",
+    "serve": "16–18°C",
+    "decant": "1–2 hours when young",
+    "window": "10–30 years from vintage",
+    "description": "The archetypal 'poor man's Latour' that is no longer poor: cassis and blackberry wrapped in cedar, graphite and cigar box, with Pauillac's firm, fine-grained frame. Opulent for the appellation, yet unmistakably classed-growth in its build.",
+    "structure": { "sweetness": 0.02, "acidity": 0.62, "tannin": 0.82, "alcohol": 0.55, "body": 0.8, "flavor_intensity": 0.8, "finish": 0.85, "oak_influence": 0.65, "effervescence": 0, "maturity": 0.25 },
+    "notes": {
+      "blackcurrant": 0.95, "blackberry": 0.7, "black_cherry": 0.45, "black_plum": 0.35,
+      "cedar": 0.75, "graphite": 0.7, "cigar_box": 0.55, "tobacco": 0.4, "pencil_shavings": 0.45,
+      "vanilla": 0.35, "toast": 0.4, "mocha": 0.3, "dark_chocolate": 0.25,
+      "blackcurrant_leaf": 0.25, "mint": 0.2, "crushed_rock": 0.35,
+      "fine_grained_tannin": 0.7, "grippy_tannin": 0.4, "structured": 0.85, "classic": 0.8, "opulent": 0.45,
+      "concentrated": 0.6, "new_oak": 0.65, "age_worthy": 0.95, "youthful": 0.5
+    },
+    "pairings": ["lamb", "beef", "hard_cheese", "game_meat"]
+  },
+  {
+    "slug": "dr-loosen-wehlener-sonnenuhr-riesling-kabinett",
+    "name": "Wehlener Sonnenuhr Riesling Kabinett",
+    "producer": "Dr. Loosen",
+    "type": "white",
+    "country": "Germany",
+    "region": "Mosel",
+    "appellation": "Wehlener Sonnenuhr",
+    "grapes": ["Riesling"],
+    "price": 30,
+    "abv": 8.5,
+    "elevage": "Fermented and aged in stainless steel and old Fuder",
+    "serve": "7–9°C",
+    "decant": "Not needed",
+    "window": "Now–15 years",
+    "description": "Featherweight and electric: white peach, green apple and lime over the blue-slate cool of the Sonnenuhr. A kiss of residual sugar is wound tight by searing acidity, so it finishes refreshingly, not sweetly.",
+    "structure": { "sweetness": 0.38, "acidity": 0.92, "tannin": 0.0, "alcohol": 0.12, "body": 0.22, "flavor_intensity": 0.65, "finish": 0.7, "oak_influence": 0.0, "effervescence": 0.05, "maturity": 0.15 },
+    "notes": {
+      "white_peach": 0.75, "green_apple": 0.7, "lime": 0.65, "lemon_zest": 0.4, "apricot": 0.3, "mirabelle": 0.3,
+      "honeysuckle": 0.35, "white_flowers": 0.4, "slate": 0.85, "wet_stone": 0.55, "petrol": 0.12, "honey": 0.15,
+      "crisp": 0.6, "taut": 0.6, "lean": 0.35, "juicy": 0.55, "ethereal": 0.7, "precise": 0.75, "fresh": 0.9,
+      "mineral_driven": 0.8, "classic": 0.8, "unoaked": 0.7, "age_worthy": 0.6, "youthful": 0.75
+    },
+    "pairings": ["spicy_food", "pork", "sushi", "aperitif"]
+  }
+]
