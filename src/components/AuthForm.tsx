@@ -12,7 +12,7 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(params.get('error'));
   const [sent, setSent] = useState(false);
 
   async function submit(e: React.FormEvent) {

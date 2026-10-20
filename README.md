@@ -46,4 +46,6 @@ npm run seed:validate && npm run seed:build
 
 - **Auth → Sign In / Providers → Email:** turn off "Confirm email" for instant sign-up, or configure SMTP.
   The built-in mailer is rate-limited.
-- **Auth → URL Configuration:** set the Site URL to your Vercel domain so confirmation links return to the app.
+- **Auth → URL Configuration:** set the Site URL to your Vercel domain, and add every origin you sign up from to
+  **Redirect URLs** (e.g. `https://<your-app>.vercel.app/**` and `http://localhost:3000/**`). Without that, Supabase
+  ignores the app's `/auth/callback` redirect and sends confirmation links to the bare Site URL.
