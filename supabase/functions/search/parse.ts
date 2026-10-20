@@ -50,7 +50,13 @@ const STOP = new Set((
 
 const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-export function parse(qRaw: string, ph: Phrase[]) {
+// Words from curated producer names, so a producer called e.g. "Textbook" is still found by name
+// even though "textbook" is also a lexicon synonym (of classic).
+export function producerWords(producers: string[]): Set<string> {
+  return new Set(producers.flatMap((p) => norm(p).split(/[^a-z0-9]+/)).filter((w) => w.length >= 3));
+}
+
+export function parse(qRaw: string, ph: Phrase[], producers: Set<string> = new Set()) {
   const raw = qRaw.toLowerCase();
   let q = ' ' + norm(qRaw).replace(/\s+/g, ' ') + ' ';
   const out = {
@@ -80,10 +86,13 @@ export function parse(qRaw: string, ph: Phrase[]) {
 
   // lexicon phrases, longest first, each span consumed once
   const seen = new Set<string>();
+  const nameTerms: string[] = [];
   for (const { phrase, attr } of ph) {
     const re = new RegExp(`(^|[^a-z])${esc(phrase)}(?:e?s)?(?=[^a-z]|$)`);
     if (!re.test(q)) continue;
     q = q.replace(re, '$1 ');
+    // a note word that is also a producer's name counts as a keyword too (not pairings: "for salmon" ≠ Billecart-Salmon)
+    if (attr.kind !== 'pairing' && producers.has(phrase)) nameTerms.push(phrase);
     if (seen.has(attr.key)) continue;
     seen.add(attr.key);
     (attr.kind === 'pairing' ? out.pairings : out.notes).push(attr);
@@ -101,6 +110,6 @@ export function parse(qRaw: string, ph: Phrase[]) {
   }
 
   // leftover keywords: grapes, regions, producers…
-  out.terms = [...new Set(q.split(/[^a-z0-9]+/).filter((w) => w.length >= 3 && !STOP.has(w) && !/^\d+$/.test(w)))].slice(0, 8);
+  out.terms = [...new Set([...nameTerms, ...q.split(/[^a-z0-9]+/).filter((w) => w.length >= 3 && !STOP.has(w) && !/^\d+$/.test(w))])].slice(0, 8);
   return out;
 }
