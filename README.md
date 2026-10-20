@@ -19,7 +19,7 @@ See **[docs/PLAN.md](docs/PLAN.md)** for the architecture, data model, scoring m
 
 ```
 data/lexicon.mjs            the vector space: 27 categories, 323 attributes, synonyms, scales
-data/wines/*.json           210 curated wine profiles
+data/wines/*.json           211 curated wine profiles
 scripts/validate-wines.mjs  checks wine files against the lexicon
 scripts/build-seed.mjs      emits supabase/seed/*.sql
 supabase/migrations/        schema, vector triggers, palate learning, recommend/similar/search RPCs
@@ -41,6 +41,12 @@ files in `supabase/migrations`. After editing wine data:
 ```bash
 npm run seed:validate && npm run seed:build
 ```
+
+Commit the regenerated `supabase/seed/*.sql` along with the wine data. When it lands on `main`, the
+**Sync wines to Supabase** workflow (`.github/workflows/sync-wines.yml`) applies the seed files and runs `embed-wines`
+until every wine has an embedding. It needs a `SUPABASE_DB_URL` repository secret holding the Session pooler
+connection string from Supabase → Connect. The seed only inserts and updates, so removing a wine from the JSON doesn't
+delete it from the database.
 
 ## Supabase settings to check
 

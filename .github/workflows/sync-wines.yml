@@ -1,0 +1,78 @@
+# Pushes the curated lexicon and wines into Supabase whenever they change on main, then backfills embeddings.
+# Needs one repository secret: SUPABASE_DB_URL — the Session pooler connection string from Supabase → Connect
+# (GitHub runners have no IPv6, so the direct db.<ref>.supabase.co host won't work).
+name: Sync wines to Supabase
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - data/**
+      - scripts/build-seed.mjs
+      - scripts/validate-wines.mjs
+      - supabase/seed/**
+      - .github/workflows/sync-wines.yml
+  workflow_dispatch:
+
+concurrency:
+  group: sync-wines
+  cancel-in-progress: false
+
+env:
+  SUPABASE_URL: https://wjcoghtswckuafjkruwc.supabase.co
+  # Publishable (browser) key: already public in the app bundle, only lets embed-wines through the gateway.
+  SUPABASE_PUBLISHABLE_KEY: sb_publishable_gAbHNJ4o4FnUFW7WZbJU4Q_pJq-Xuw_
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Validate wines
+        run: npm run seed:validate
+
+      - name: Check seed SQL is up to date
+        run: |
+          npm run seed:build
+          git add -N supabase/seed
+          if ! git diff --exit-code --stat supabase/seed; then
+            echo "::error::supabase/seed is stale — run 'npm run seed:build' and commit the result"
+            exit 1
+          fi
+
+      - name: Apply seed
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          if [ -z "$SUPABASE_DB_URL" ]; then
+            echo "::error::Add the SUPABASE_DB_URL repository secret (Supabase → Connect → Session pooler)"
+            exit 1
+          fi
+          for f in supabase/seed/*.sql; do
+            echo "→ $f"
+            psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 --single-transaction -q -f "$f"
+          done
+
+      - name: Backfill embeddings
+        run: |
+          # embed-wines does a few wines per call; loop until none are left (or progress stalls).
+          for i in $(seq 1 60); do
+            res=$(curl -sS --fail-with-body -m 120 -X POST "$SUPABASE_URL/functions/v1/embed-wines" \
+              -H "apikey: $SUPABASE_PUBLISHABLE_KEY" -H "Authorization: Bearer $SUPABASE_PUBLISHABLE_KEY" \
+              -H 'content-type: application/json' -d '{"limit":6}')
+            echo "$res"
+            remaining=$(echo "$res" | jq -r '.remaining')
+            embedded=$(echo "$res" | jq -r '.embedded')
+            [ "$remaining" = "0" ] && exit 0
+            if [ "$embedded" = "0" ]; then
+              echo "::error::embed-wines made no progress ($remaining wines still without embeddings)"
+              exit 1
+            fi
+          done
+          echo "::error::gave up with $remaining wines still without embeddings"
+          exit 1
