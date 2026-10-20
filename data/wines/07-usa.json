@@ -674,5 +674,33 @@
       "unoaked": 0.7, "age_worthy": 0.55, "youthful": 0.75
     },
     "pairings": ["spicy_food", "sushi", "pork", "shellfish", "oysters"]
+  },
+  {
+    "slug": "textbook-paso-robles-cabernet-sauvignon",
+    "name": "Paso Robles Cabernet Sauvignon",
+    "producer": "Textbook",
+    "type": "red",
+    "country": "USA",
+    "region": "Paso Robles",
+    "appellation": "Paso Robles",
+    "grapes": ["Cabernet Sauvignon", "Petite Sirah"],
+    "price": 30,
+    "abv": 13.9,
+    "elevage": "About 14 months in French oak, roughly a third new; stainless-steel fermentation",
+    "serve": "16–18°C",
+    "decant": "30 minutes",
+    "window": "Now–6 years",
+    "description": "A Napa house's take on Paso: dark cherry, blackberry and cassis with plum and a red-currant lift, framed by cedar, tobacco leaf and baking spice from French oak. Riper and rounder than a Bordeaux, more restrained than a Napa blockbuster — firm but approachable tannins and enough acidity to keep it from feeling heavy.",
+    "structure": { "sweetness": 0.05, "acidity": 0.55, "tannin": 0.6, "alcohol": 0.6, "body": 0.7, "flavor_intensity": 0.7, "finish": 0.6, "oak_influence": 0.5, "effervescence": 0, "maturity": 0.15 },
+    "notes": {
+      "black_cherry": 0.8, "blackberry": 0.7, "blackcurrant": 0.6, "black_plum": 0.55, "red_plum": 0.45, "red_cherry": 0.35, "red_currant": 0.35, "raspberry": 0.25,
+      "cedar": 0.5, "tobacco_leaf": 0.45, "sandalwood": 0.3, "vanilla": 0.3, "toast": 0.25,
+      "baking_spice": 0.45, "anise": 0.3, "oregano": 0.2,
+      "dark_chocolate": 0.4, "milk_chocolate": 0.3,
+      "velvety_tannin": 0.5, "grippy_tannin": 0.3, "supple": 0.5, "round": 0.4, "juicy": 0.35,
+      "fruit_forward": 0.6, "ripe": 0.55, "approachable": 0.65, "generous": 0.55, "structured": 0.5, "classic": 0.5, "polished_style": 0.5, "complex": 0.4, "powerful": 0.35,
+      "new_oak": 0.3, "youthful": 0.6, "drink_now": 0.5
+    },
+    "pairings": ["beef", "lamb", "bbq", "burgers", "hard_cheese"]
   }
 ]

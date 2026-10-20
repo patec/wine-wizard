@@ -19,7 +19,7 @@ See **[docs/PLAN.md](docs/PLAN.md)** for the architecture, data model, scoring m
 
 ```
 data/lexicon.mjs            the vector space: 27 categories, 323 attributes, synonyms, scales
-data/wines/*.json           210 curated wine profiles
+data/wines/*.json           211 curated wine profiles
 scripts/validate-wines.mjs  checks wine files against the lexicon
 scripts/build-seed.mjs      emits supabase/seed/*.sql
 supabase/migrations/        schema, vector triggers, palate learning, recommend/similar/search RPCs
