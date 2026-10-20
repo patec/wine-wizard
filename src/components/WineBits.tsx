@@ -23,7 +23,7 @@ export function MatchRing({ value, size = 'sm', label = 'match' }: { value: numb
 
 export interface CardWine {
   slug: string; name: string; producer: string; wine_type: WineType; country: string; region: string;
-  appellation: string | null; grapes: string[]; price_usd: number | null;
+  appellation: string | null; grapes: string[]; price_usd: number | null; community_rating?: number | null;
 }
 
 export function WineCard({ w, match, reasons, cautions, note, matchLabel }: {
@@ -48,7 +48,8 @@ export function WineCard({ w, match, reasons, cautions, note, matchLabel }: {
           {cautions && cautions.length > 0 && <div className="avoid">Note: shows {joinLabels(cautions)}</div>}
           {note}
         </div>
-        <div className="price num"><small>c.</small>{price(w.price_usd)}</div>
+        {w.price_usd != null ? <div className="price num"><small>c.</small>{price(w.price_usd)}</div>
+          : w.community_rating != null ? <div className="price num" title="Community rating"><small>★</small>{Number(w.community_rating).toFixed(1)}</div> : null}
       </div>
     </Link>
   );

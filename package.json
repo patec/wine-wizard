@@ -10,7 +10,8 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "seed:build": "node scripts/build-seed.mjs",
-    "seed:validate": "node scripts/validate-wines.mjs data/wines/*.json"
+    "seed:validate": "node scripts/validate-wines.mjs data/wines/*.json",
+    "import:select": "node scripts/xwines-select.mjs"
   },
   "dependencies": {
     "@fontsource-variable/inter": "5.3.0",

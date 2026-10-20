@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/supabase/server';
 import { WineCard } from '@/components/WineBits';
 import { Filters } from '@/components/Filters';
+import { getCountries } from '@/lib/data';
 import type { Recommendation } from '@/lib/types';
 
 export const metadata = { title: 'For you' };
@@ -14,16 +15,15 @@ export default async function ForYou({ searchParams }: { searchParams: Promise<R
   const { data: palate } = await sb.from('palates').select('display_name, quiz_completed_at, rating_count, flavor_vec').eq('user_id', user!.id).maybeSingle();
   if (!palate?.quiz_completed_at && !palate?.rating_count) redirect('/onboarding');
 
-  const [{ data: recs, error }, { data: countryRows }] = await Promise.all([
+  const [{ data: recs, error }, countries] = await Promise.all([
     sb.rpc('recommend_wines', {
       p_limit: 24,
       p_type: sp.type ?? null,
       p_max_price: sp.max ? Number(sp.max) : null,
       p_country: sp.country ?? null,
     }),
-    sb.from('wines').select('country'),
+    getCountries(sb),
   ]);
-  const countries = [...new Set((countryRows ?? []).map((r) => r.country))].sort();
   const list = (recs ?? []) as Recommendation[];
   const [first, ...rest] = list;
 

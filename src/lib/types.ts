@@ -20,6 +20,9 @@ export interface Wine {
   description?: string | null;
   is_curated?: boolean;
   created_by?: string | null;
+  source?: 'curated' | 'member' | 'xwines';
+  community_rating?: number | null;
+  community_ratings?: number | null;
 }
 
 export interface NoteRef { key: string; label: string }

@@ -134,6 +134,13 @@ New Zealand, South Africa, Argentina, Chile and Uruguay. They span every price t
 - `scripts/validate-wines.mjs` checks every key against the lexicon.
 - `scripts/build-seed.mjs` emits `supabase/seed/*.sql`.
 
+Imported catalog: ~12,500 of the most-rated labels from X-Wines (CC0), selected by `scripts/xwines-select.mjs` and stored
+in `data/imports/xwines.json`. Their profiles are estimated by `scripts/lib/profile.mjs` from grape, place and style
+typicity (`data/typicity.mjs`), blended with the dataset's stated body, ABV and pairings. Ranking adjusts for them:
+- Recommendations multiply palate fit by a confidence factor: 0.92–1.0 from the community rating, × 0.97 for an estimate.
+- Lists show at most two imports that share a type, lead grape and region.
+- Search breaks near-ties toward wines with more community ratings.
+
 ## 7. App (Next.js 15, App Router) ✅
 
 | Route | What it does |

@@ -44,7 +44,8 @@ export function Filters({ countries, showSort = false }: { countries: string[]; 
       {showSort && (
         <div className="field">
           <label htmlFor="f-sort">Order</label>
-          <select id="f-sort" className="select" value={params.get('sort') ?? 'producer'} onChange={(e) => set('sort', e.target.value)}>
+          <select id="f-sort" className="select" value={params.get('sort') ?? 'popular'} onChange={(e) => set('sort', e.target.value)}>
+            <option value="popular">Most rated</option>
             <option value="producer">Producer A–Z</option>
             <option value="price_asc">Price, low to high</option>
             <option value="price_desc">Price, high to low</option>

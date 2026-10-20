@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { supabaseServer } from '@/lib/supabase/server';
-import { CARD_FIELDS } from '@/lib/data';
+import { CARD_FIELDS, getCountries } from '@/lib/data';
 import { WineCard, type CardWine } from '@/components/WineBits';
 import { Filters } from '@/components/Filters';
 import { NaturalSearch } from './NaturalSearch';
@@ -18,16 +18,16 @@ export default async function Cellar({ searchParams }: { searchParams: Promise<R
   if (sp.type) query = query.eq('wine_type', sp.type);
   if (sp.country) query = query.eq('country', sp.country);
   if (sp.max) query = query.lte('price_usd', Number(sp.max));
-  const sort = sp.sort ?? 'producer';
-  query = sort === 'price_asc' ? query.order('price_usd', { ascending: true })
-    : sort === 'price_desc' ? query.order('price_usd', { ascending: false })
+  const sort = sp.sort ?? 'popular';
+  query = sort === 'price_asc' ? query.order('price_usd', { ascending: true, nullsFirst: false })
+    : sort === 'price_desc' ? query.order('price_usd', { ascending: false, nullsFirst: false })
     : sort === 'region' ? query.order('country').order('region').order('producer')
-    : query.order('producer').order('name');
-  const [{ data, count }, { data: countryRows }] = await Promise.all([
+    : sort === 'producer' ? query.order('producer').order('name')
+    : query.order('community_ratings', { ascending: false, nullsFirst: false }).order('producer').order('name');
+  const [{ data, count }, countries] = await Promise.all([
     query.range((page - 1) * PER, page * PER - 1),
-    sb.from('wines').select('country'),
+    getCountries(sb),
   ]);
-  const countries = [...new Set((countryRows ?? []).map((r) => r.country))].sort();
   const pages = Math.ceil((count ?? 0) / PER);
   const qs = (p: number) => { const u = new URLSearchParams(sp as Record<string, string>); u.set('page', String(p)); u.delete('q'); return `?${u}`; };
 
