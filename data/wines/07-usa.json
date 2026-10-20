@@ -702,5 +702,33 @@
       "new_oak": 0.3, "youthful": 0.6, "drink_now": 0.5
     },
     "pairings": ["beef", "lamb", "bbq", "burgers", "hard_cheese"]
+  },
+  {
+    "slug": "alexander-valley-vineyards-estate-cabernet-sauvignon",
+    "name": "Estate Cabernet Sauvignon",
+    "producer": "Alexander Valley Vineyards",
+    "type": "red",
+    "country": "USA",
+    "region": "Sonoma County",
+    "appellation": "Alexander Valley",
+    "grapes": ["Cabernet Sauvignon", "Malbec", "Petit Verdot", "Merlot"],
+    "price": 28,
+    "abv": 14,
+    "elevage": "About 14 months in French and American oak, roughly a quarter new",
+    "serve": "16–18°C",
+    "decant": "30–60 minutes",
+    "window": "Now–10 years",
+    "description": "The Wetzel family's flagship from their estate in the cooler southern end of the valley, made since 1975: cassis, cherry and plum with anise, dark chocolate and cedar, and a fresh lift of mint and dried herbs. Firm, chewy tannins and bright acidity give it more structure than its price suggests, making it a classic-styled Sonoma Cabernet for the steak and the cellar alike.",
+    "structure": { "sweetness": 0.04, "acidity": 0.6, "tannin": 0.65, "alcohol": 0.62, "body": 0.65, "flavor_intensity": 0.65, "finish": 0.6, "oak_influence": 0.45, "effervescence": 0, "maturity": 0.15 },
+    "notes": {
+      "blackcurrant": 0.75, "black_cherry": 0.6, "black_plum": 0.5, "red_cherry": 0.45, "red_plum": 0.3,
+      "cedar": 0.45, "vanilla": 0.35, "coconut": 0.15,
+      "anise": 0.3, "baking_spice": 0.35, "mint": 0.3, "dried_herbs": 0.3, "blackcurrant_leaf": 0.25, "tobacco_leaf": 0.2, "tomato_leaf": 0.15, "graphite": 0.2,
+      "dark_chocolate": 0.45,
+      "chewy": 0.5, "grippy_tannin": 0.45, "supple": 0.3,
+      "structured": 0.6, "classic": 0.6, "fresh": 0.45, "savory": 0.35, "mineral_driven": 0.25, "approachable": 0.5, "fruit_forward": 0.45,
+      "new_oak": 0.2, "youthful": 0.6, "drink_now": 0.4, "age_worthy": 0.35
+    },
+    "pairings": ["beef", "lamb", "bbq", "burgers", "hard_cheese"]
   }
 ]

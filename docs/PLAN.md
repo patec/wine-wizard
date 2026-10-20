@@ -125,7 +125,7 @@ Type and price are hard filters parsed from the text ("under $40", "rosé", "bub
 
 ## 6. Seed catalog ✅
 
-211 benchmark wines (`data/wines/*.json`) across Bordeaux, Loire, Burgundy, Champagne, Rhône, Provence, Languedoc,
+212 benchmark wines (`data/wines/*.json`) across Bordeaux, Loire, Burgundy, Champagne, Rhône, Provence, Languedoc,
 Alsace, Jura, Italy, Spain, Portugal, Germany, Austria, Hungary, Greece, Georgia, Lebanon, Slovenia, USA, Australia,
 New Zealand, South Africa, Argentina, Chile and Uruguay. They span every price tier and every style.
 
