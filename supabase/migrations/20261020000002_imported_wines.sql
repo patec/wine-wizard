@@ -113,7 +113,7 @@ revoke execute on function public.seed_imported_wines(jsonb) from public, anon, 
 --    without one count as well rated), × 0.97 when the profile is estimated rather than tasted, so among
 --    near-equal fits the better-loved, better-known bottle comes first.
 create or replace function public._quality(p_rating numeric, p_estimated boolean)
-returns real language sql immutable as $$
+returns real language sql immutable set search_path = public as $$
   select ((0.92 + 0.08 * coalesce(greatest(0, least(1, (p_rating - 3.5) / 1.1)), 0.75)) * case when p_estimated then 0.97 else 1 end)::real
 $$;
 
