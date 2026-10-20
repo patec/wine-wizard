@@ -12,7 +12,7 @@ See **[docs/PLAN.md](docs/PLAN.md)** for the architecture, data model, scoring m
 |---|---|
 | App | Next.js 15 (App Router), React 19, TypeScript, hand-written CSS design system |
 | Data | Supabase Postgres, pgvector (`flavor_vec` 384, `struct_vec` 16, `embedding` 384) |
-| Auth | Supabase Auth (email + password), row-level security everywhere |
+| Auth | Supabase Auth (email + password, Google), row-level security everywhere |
 | AI | `gte-small` embeddings built into Supabase Edge Functions (no API keys, no cost) |
 
 ## Repo layout
@@ -46,4 +46,18 @@ npm run seed:validate && npm run seed:build
 
 - **Auth → Sign In / Providers → Email:** turn off "Confirm email" for instant sign-up, or configure SMTP.
   The built-in mailer is rate-limited.
-- **Auth → URL Configuration:** set the Site URL to your Vercel domain so confirmation links return to the app.
+- **Auth → URL Configuration:** set the Site URL to your Vercel domain so confirmation links return to the app, and
+  add `http://localhost:3000/auth/callback` and `https://<your-vercel-domain>/auth/callback` to **Redirect URLs**.
+  Supabase ignores any `redirectTo` that isn't on that list and sends people to the Site URL instead.
+
+### Google sign-in
+
+1. In [Google Cloud Console](https://console.cloud.google.com/apis/credentials), configure the OAuth consent screen
+   (scopes `openid`, `email`, `profile`), then create an **OAuth client ID** of type *Web application*:
+   - Authorized JavaScript origins: `http://localhost:3000`, `https://<your-vercel-domain>`
+   - Authorized redirect URI: `https://wjcoghtswckuafjkruwc.supabase.co/auth/v1/callback`
+2. In Supabase, go to **Auth → Sign In / Providers → Google**. Turn it on and paste the client ID and secret.
+3. Apply `supabase/migrations/20261020000001_google_auth.sql`. It seeds `display_name` from the Google profile name.
+
+The app needs no new environment variables. Google users who sign in for the first time are sent through
+`/for-you`, which redirects them to the palate quiz.

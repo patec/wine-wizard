@@ -32,7 +32,7 @@ Status legend: ✅ shipped in v1 · 🔜 next · 💡 later
            │ functions.invoke     │  Edge Functions (Deno)                       │
            └─────────────────────►│   search      – parse + gte-small + RPC      │
                                   │   embed-wines – gte-small backfill           │
-                                  │  Auth (email + password)                     │
+                                  │  Auth (email + password, Google)             │
                                   └──────────────────────────────────────────────┘
 ```
 
@@ -139,7 +139,7 @@ New Zealand, South Africa, Argentina, Chile and Uruguay. They span every price t
 | Route | What it does |
 |---|---|
 | `/` | Landing: hero aroma wheel, the method, sample sommelier queries |
-| `/signup`, `/login` | Email + password (Supabase Auth) |
+| `/signup`, `/login` | Email + password or Google (Supabase Auth). OAuth returns through `/auth/callback` |
 | `/onboarding` | 6-step palate quiz: styles, structure sliders, aroma families, specific notes, bottles you love, budget |
 | `/for-you` | Ranked recommendations with match rings, reasons, cautions, filters |
 | `/cellar` | Natural-language search ("Reading this as…" chips) and the browsable catalog |
