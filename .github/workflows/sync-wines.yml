@@ -6,7 +6,7 @@ name: Sync wines to Supabase
 
 on:
   push:
-    branches: [main, claude/relaxed-ptolemy-gmta97] # branch entry: one-off run of the X-Wines import; drop after merge
+    branches: [main]
     paths:
       - data/**
       - scripts/build-seed.mjs
