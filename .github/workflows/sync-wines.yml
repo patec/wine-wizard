@@ -1,4 +1,5 @@
-# Pushes the curated lexicon and wines into Supabase whenever they change on main, then backfills embeddings.
+# Pushes the lexicon, curated wines and imported (X-Wines) wines into Supabase whenever they change on main,
+# then backfills embeddings. Imported wines whose content is unchanged are skipped by the loader.
 # Needs one repository secret: SUPABASE_DB_URL — the Session pooler connection string from Supabase → Connect
 # (GitHub runners have no IPv6, so the direct db.<ref>.supabase.co host won't work).
 name: Sync wines to Supabase
@@ -10,6 +11,7 @@ on:
       - data/**
       - scripts/build-seed.mjs
       - scripts/validate-wines.mjs
+      - scripts/lib/**
       - supabase/seed/**
       - .github/workflows/sync-wines.yml
   workflow_dispatch:
@@ -26,6 +28,7 @@ env:
 jobs:
   sync:
     runs-on: ubuntu-latest
+    timeout-minutes: 330
     steps:
       - uses: actions/checkout@v4
 
@@ -45,6 +48,18 @@ jobs:
             exit 1
           fi
 
+      - name: Apply imported-wines schema (once)
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          # The hosted project only got part of this migration through the dashboard tooling. It runs here once —
+          # wine_countries() is its last function, so its presence means the whole file applied — and never again,
+          # so later migrations that redefine these functions aren't reverted by a sync.
+          if [ -n "$SUPABASE_DB_URL" ] && [ "$(psql "$SUPABASE_DB_URL" -tAc "select count(*) from pg_proc where proname = 'wine_countries'")" = "0" ]; then
+            psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 --single-transaction -q -f supabase/migrations/20261020000002_imported_wines.sql
+            echo "applied 20261020000002_imported_wines.sql"
+          fi
+
       - name: Apply seed
         env:
           SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
@@ -58,21 +73,45 @@ jobs:
             psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 --single-transaction -q -f "$f"
           done
 
-      - name: Backfill embeddings
+      - name: Apply imported wines
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          MAX_DB_MB: 420 # Supabase free tier is 500 MB; leave headroom for embeddings, ratings and growth
         run: |
-          # embed-wines does a few wines per call; loop until none are left (or progress stalls).
-          for i in $(seq 1 60); do
-            res=$(curl -sS --fail-with-body -m 120 -X POST "$SUPABASE_URL/functions/v1/embed-wines" \
-              -H "apikey: $SUPABASE_PUBLISHABLE_KEY" -H "Authorization: Bearer $SUPABASE_PUBLISHABLE_KEY" \
-              -H 'content-type: application/json' -d '{"limit":6}')
-            echo "$res"
-            remaining=$(echo "$res" | jq -r '.remaining')
-            embedded=$(echo "$res" | jq -r '.embedded')
-            [ "$remaining" = "0" ] && exit 0
-            if [ "$embedded" = "0" ]; then
-              echo "::error::embed-wines made no progress ($remaining wines still without embeddings)"
+          size() { psql "$SUPABASE_DB_URL" -tAc "select pg_database_size(current_database()) / 1048576"; }
+          for f in supabase/seed/imports/*.sql; do
+            mb=$(size)
+            if [ "$mb" -ge "$MAX_DB_MB" ]; then
+              echo "::error::database is ${mb} MB (limit ${MAX_DB_MB} MB) — stopping before $f"
               exit 1
             fi
+            echo "→ $f (${mb} MB)"
+            psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 --single-transaction -q -f "$f"
           done
-          echo "::error::gave up with $remaining wines still without embeddings"
+          echo "database: $(size) MB"
+
+      - name: Backfill embeddings
+        run: |
+          # embed-wines does a few wines per call (~0.6 s each); loop until none are left or ~5 h pass.
+          # A failed or empty call is retried; five in a row means something is wrong.
+          deadline=$(( $(date +%s) + 5 * 3600 )); strikes=0; remaining='?'
+          while [ "$(date +%s)" -lt "$deadline" ]; do
+            if res=$(curl -sS --fail-with-body -m 120 -X POST "$SUPABASE_URL/functions/v1/embed-wines" \
+                 -H "apikey: $SUPABASE_PUBLISHABLE_KEY" -H "Authorization: Bearer $SUPABASE_PUBLISHABLE_KEY" \
+                 -H 'content-type: application/json' -d '{"limit":6}'); then
+              echo "$res"
+              remaining=$(echo "$res" | jq -r '.remaining')
+              [ "$remaining" = "0" ] && exit 0
+              [ "$(echo "$res" | jq -r '.embedded')" != "0" ] && { strikes=0; continue; }
+            else
+              echo "call failed: $res"
+            fi
+            strikes=$((strikes + 1))
+            if [ "$strikes" -ge 5 ]; then
+              echo "::error::embed-wines failed or made no progress 5 times in a row ($remaining wines still without embeddings)"
+              exit 1
+            fi
+            sleep $((strikes * 5))
+          done
+          echo "::error::time's up with $remaining wines still without embeddings — re-run the workflow to continue"
           exit 1

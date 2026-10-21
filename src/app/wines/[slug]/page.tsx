@@ -59,8 +59,11 @@ export default async function WinePage({ params }: { params: Promise<{ slug: str
             <span className="chip"><TypeDot type={wine.wine_type} /> {TYPE_LABEL[wine.wine_type]}</span>
             {wine.grapes.map((g) => <span key={g} className="chip">{g}</span>)}
             {wine.abv && <span className="chip num">{wine.abv}% abv</span>}
-            <span className="chip chip-gold num">c. {price(wine.price_usd)}</span>
-            {!wine.is_curated && <span className="chip">Member-added</span>}
+            {wine.price_usd != null && <span className="chip chip-gold num">c. {price(wine.price_usd)}</span>}
+            {wine.community_rating != null && (
+              <span className="chip num" title="Community rating (X-Wines, 2012–2021)">★ {Number(wine.community_rating).toFixed(1)} · {wine.community_ratings?.toLocaleString('en-US')} ratings</span>
+            )}
+            {wine.source === 'member' && <span className="chip">Member-added</span>}
           </div>
         </div>
         <div style={{ textAlign: 'center' }}>
@@ -90,6 +93,11 @@ export default async function WinePage({ params }: { params: Promise<{ slug: str
       <div className="two-col" style={{ marginTop: 48 }}>
         <section>
           {wine.description && <p className="tasting-note">{wine.description}</p>}
+          {wine.source === 'xwines' && (
+            <p className="faint" style={{ fontSize: '.85rem', marginTop: 10 }}>
+              Profile estimated from its grapes, place and style rather than tasted. Rate it and your palate learns from your own glass.
+            </p>
+          )}
           <div className="rule-title" style={{ marginTop: 40 }}><span className="eyebrow">On the nose &amp; palate</span></div>
           <div style={{ maxWidth: 520, margin: '0 auto' }}>
             <AromaWheel notes={wheelNotes(wine, cats)} title={`Aroma wheel for ${wine.name}`} />

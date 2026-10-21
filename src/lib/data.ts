@@ -2,10 +2,16 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Attribute, Category, Wine } from './types';
 import type { WheelNote } from '@/components/Charts';
 
-export const CARD_FIELDS = 'id,slug,name,producer,wine_type,country,region,appellation,grapes,price_usd';
+export const CARD_FIELDS = 'id,slug,name,producer,wine_type,country,region,appellation,grapes,price_usd,community_rating';
 
 export interface WineWithAttrs extends Wine {
   wine_attributes: { intensity: number; attributes: Attribute }[];
+}
+
+// Countries that have wines, for filters (a plain select of every row would hit the API's row cap).
+export async function getCountries(sb: SupabaseClient): Promise<string[]> {
+  const { data } = await sb.rpc('wine_countries');
+  return ((data ?? []) as { country: string }[]).map((r) => r.country);
 }
 
 export async function getCategories(sb: SupabaseClient): Promise<Map<string, Category>> {

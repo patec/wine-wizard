@@ -45,7 +45,7 @@ export default async function Home() {
               )}
               <Link href="/cellar" className="btn btn-ghost">Browse the cellar</Link>
             </div>
-            <p className="faint" style={{ marginTop: 22, fontSize: '.85rem' }}>{count ?? 200} benchmark wines profiled · free, private, ad-free</p>
+            <p className="faint" style={{ marginTop: 22, fontSize: '.85rem' }}>{(count ?? 200).toLocaleString('en-US')} wines profiled · free, private, ad-free</p>
           </div>
           <div className="hero-art">
             {showcase && (

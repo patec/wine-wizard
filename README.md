@@ -20,6 +20,8 @@ See **[docs/PLAN.md](docs/PLAN.md)** for the architecture, data model, scoring m
 ```
 data/lexicon.mjs            the vector space: 27 categories, 323 attributes, synonyms, scales
 data/wines/*.json           211 curated wine profiles
+data/imports/xwines.json    ~12,600 popular labels from X-Wines (CC0), profiles estimated at build time
+data/typicity.mjs           grape, place and style typicity used for those estimates
 scripts/validate-wines.mjs  checks wine files against the lexicon
 scripts/build-seed.mjs      emits supabase/seed/*.sql
 supabase/migrations/        schema, vector triggers, palate learning, recommend/similar/search RPCs
@@ -47,6 +49,19 @@ Commit the regenerated `supabase/seed/*.sql` along with the wine data. When it l
 until every wine has an embedding. It needs a `SUPABASE_DB_URL` repository secret holding the Session pooler
 connection string from Supabase → Connect. The seed only inserts and updates, so removing a wine from the JSON doesn't
 delete it from the database.
+
+### Imported wines
+
+Beyond the curated benchmarks, the cellar carries the most-rated labels from [X-Wines](https://github.com/rogerioxavier/X-Wines)
+(CC0; 100k wines and 21M community ratings collected in 2022): the top 12,000 by number of ratings, plus every dessert
+wine and port with at least 100. `npm run import:select` re-downloads the dataset and rewrites `data/imports/xwines.json`.
+
+X-Wines gives grapes, region, body, ABV, pairings and ratings, but no tasting notes or prices. `npm run seed:build`
+estimates each wine's structure and notes from `data/typicity.mjs` (grape typicity, then place, then style words such as
+"Tawny", "Amarone" or "Gran Reserva") and writes `supabase/seed/imports/*.sql`, which is generated and not committed.
+Labels that duplicate a curated wine are skipped, and their community ratings are copied onto the curated wine. These wines
+are stored with `source = 'xwines'`. The wine page says their profile is estimated, and rankings treat them a little more
+cautiously than tasted profiles. The sync workflow stops loading if the database passes 420 MB.
 
 ## Supabase settings to check
 
