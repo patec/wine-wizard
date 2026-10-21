@@ -22,12 +22,14 @@ export function MatchRing({ value, size = 'sm', label = 'match' }: { value: numb
 }
 
 export interface CardWine {
-  slug: string; name: string; producer: string; wine_type: WineType; country: string; region: string;
+  id?: string; slug: string; name: string; producer: string; wine_type: WineType; country: string; region: string;
   appellation: string | null; grapes: string[]; price_usd: number | null; community_rating?: number | null;
 }
 
-export function WineCard({ w, match, reasons, cautions, note, matchLabel }: {
+export function WineCard({ w, match, reasons, cautions, note, matchLabel, aside }: {
   w: CardWine; match?: number; reasons?: NoteRef[]; cautions?: NoteRef[]; note?: React.ReactNode; matchLabel?: string;
+  /** Shown in the top-right slot when there's no match ring (e.g. an aroma fingerprint). */
+  aside?: React.ReactNode;
 }) {
   const showProducer = !w.name.toLowerCase().includes(w.producer.toLowerCase());
   return (
@@ -41,7 +43,7 @@ export function WineCard({ w, match, reasons, cautions, note, matchLabel }: {
         <div className="wine-name">{w.name}</div>
         <div className="origin">{origin(w)}{w.grapes.length ? ` — ${w.grapes.slice(0, 3).join(', ')}${w.grapes.length > 3 ? '…' : ''}` : ''}</div>
       </div>
-      {match != null ? <MatchRing value={match} label={matchLabel} /> : <span />}
+      {match != null ? <MatchRing value={match} label={matchLabel} /> : aside ?? <span />}
       <div className="foot">
         <div className="reasons">
           {reasons && reasons.length > 0 && <>For your love of <b>{joinLabels(reasons)}</b></>}

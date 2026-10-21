@@ -125,3 +125,51 @@ export function PalateRadar({ axes, size = 360 }: { axes: { key: string; label: 
     </svg>
   );
 }
+
+export interface FingerprintAxis { key: string; label: string }
+export interface Fingerprints { axes: FingerprintAxis[]; wines: Record<string, number[]>; palate: number[] | null }
+
+const GLYPH_SHORT: Record<string, string> = { cellar: 'Oak', tertiary: 'Age' };
+const GLYPH_FLOOR = 0.08; // keeps lean wines from collapsing into a sliver
+
+/**
+ * Aroma fingerprint: a small radar of a wine's aroma groups, with the viewer's palate as a dashed outline.
+ * Pure SVG, server-rendered. Pass `wine` without `palate` for a wine-only glyph, or `labels` for the legend.
+ */
+export function AromaGlyph({ axes, wine, palate, size = 64, labels = false }: {
+  axes: FingerprintAxis[]; wine?: number[] | null; palate?: number[] | null; size?: number; labels?: boolean;
+}) {
+  const n = axes.length;
+  if (n < 3) return null;
+  const pad = labels ? size * 0.22 : 2;
+  const c = size / 2, R = c - pad;
+  const pt = (i: number, f: number) => polar(c, c, R * f, -Math.PI / 2 + (i * 2 * Math.PI) / n);
+  const ring = (f: number) => axes.map((_, i) => pt(i, f).map((x) => x.toFixed(1)).join(',')).join(' ');
+  const shape = (v: number[]) => v.map((x, i) => pt(i, GLYPH_FLOOR + (1 - GLYPH_FLOOR) * Math.max(0, Math.min(1, x))).map((p) => p.toFixed(1)).join(',')).join(' ');
+  const desc = wine ? axes.map((a, i) => `${a.label} ${Math.round((wine[i] ?? 0) * 100)}`).join(', ') : undefined;
+
+  return (
+    <svg className="aroma-glyph" width={size} height={size} viewBox={`0 0 ${size} ${size}`} overflow="visible"
+      role={labels ? 'img' : desc ? 'img' : undefined} aria-hidden={!labels && !desc ? true : undefined}
+      aria-label={labels ? 'Aroma fingerprint legend' : desc ? `Aroma fingerprint: ${desc}` : undefined}>
+      <polygon points={ring(1)} fill="none" stroke="var(--rule-strong)" strokeWidth={0.75} />
+      <polygon points={ring(0.5)} fill="none" stroke="var(--rule)" strokeWidth={0.6} />
+      {axes.map((a, i) => {
+        const [x, y] = pt(i, 1);
+        return <line key={a.key} x1={c} y1={c} x2={x} y2={y} stroke="var(--rule)" strokeWidth={0.5} />;
+      })}
+      {wine && <polygon points={shape(wine)} fill="var(--wine)" fillOpacity={0.2} stroke="var(--wine)" strokeWidth={1.2} strokeLinejoin="round" />}
+      {palate && <polygon points={shape(palate)} fill="none" stroke="var(--gold)" strokeWidth={1.3} strokeDasharray="3 2" strokeLinejoin="round" />}
+      {labels && axes.map((a, i) => {
+        const [x, y] = pt(i, 1.24);
+        const cs = Math.cos(-Math.PI / 2 + (i * 2 * Math.PI) / n);
+        return (
+          <text key={'l' + a.key} x={x} y={y} fontSize={10} letterSpacing="0.12em" fontWeight={600} fill="var(--ink-soft)"
+            textAnchor={Math.abs(cs) < 0.2 ? 'middle' : cs > 0 ? 'start' : 'end'} dominantBaseline="middle" style={{ textTransform: 'uppercase' }}>
+            {GLYPH_SHORT[a.key] ?? a.label}
+          </text>
+        );
+      })}
+    </svg>
+  );
+}
