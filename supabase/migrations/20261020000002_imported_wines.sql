@@ -2,15 +2,16 @@
 -- X-Wines labels (data/imports, CC0) arrive with grapes, place, body, pairings and community ratings; their
 -- lexicon profiles are estimated from typicity (scripts/lib/profile.mjs), so they carry their own source and
 -- the community stats that rank them.
+-- Idempotent: safe to re-run (the hosted project got this file in pieces).
 alter table public.wines
-  add column source text not null default 'member' check (source in ('curated', 'member', 'xwines')),
-  add column source_id text,
-  add column community_rating numeric(3,2) check (community_rating between 1 and 5),
-  add column community_ratings integer check (community_ratings >= 0),
-  add column seed_hash text;
-update public.wines set source = 'curated' where is_curated;
-create unique index wines_source_id_key on public.wines(source, source_id);
-create index wines_community_idx on public.wines(community_ratings desc nulls last);
+  add column if not exists source text not null default 'member' check (source in ('curated', 'member', 'xwines')),
+  add column if not exists source_id text,
+  add column if not exists community_rating numeric(3,2) check (community_rating between 1 and 5),
+  add column if not exists community_ratings integer check (community_ratings >= 0),
+  add column if not exists seed_hash text;
+update public.wines set source = 'curated' where is_curated and source <> 'curated';
+create unique index if not exists wines_source_id_key on public.wines(source, source_id);
+create index if not exists wines_community_idx on public.wines(community_ratings desc nulls last);
 
 -- Members can't set or change provenance and community stats.
 create or replace function public.wines_guard()
@@ -71,7 +72,7 @@ returns int language plpgsql security definer set search_path = public, extensio
 declare r jsonb; v_id uuid; v_slug text; n int := 0;
 begin
   for r in select * from jsonb_array_elements(p) loop
-    if r ? 'u' then
+    if r->>'u' is not null then
       update public.wines set community_rating = (r->>'cr')::numeric, community_ratings = (r->>'cn')::int
       where slug = r->>'u' and source = 'curated'
         and (community_rating, community_ratings) is distinct from ((r->>'cr')::numeric, (r->>'cn')::int);
