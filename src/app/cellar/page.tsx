@@ -2,7 +2,6 @@ import Link from 'next/link';
 import { supabaseServer } from '@/lib/supabase/server';
 import { CARD_FIELDS, getCountries } from '@/lib/data';
 import { WineCard, type CardWine } from '@/components/WineBits';
-import { AromaGlyph, type Fingerprints } from '@/components/Charts';
 import { Filters } from '@/components/Filters';
 import { NaturalSearch } from './NaturalSearch';
 
@@ -29,10 +28,6 @@ export default async function Cellar({ searchParams }: { searchParams: Promise<R
     query.range((page - 1) * PER, page * PER - 1),
     getCountries(sb),
   ]);
-  const wines = (data ?? []) as CardWine[];
-  const ids = wines.map((w) => w.id).filter(Boolean) as string[];
-  const { data: fp } = !sp.q && ids.length ? await sb.rpc('aroma_fingerprints', { p_ids: ids }) : { data: null };
-  const prints = fp as Fingerprints | null;
   const pages = Math.ceil((count ?? 0) / PER);
   const qs = (p: number) => { const u = new URLSearchParams(sp as Record<string, string>); u.set('page', String(p)); u.delete('q'); return `?${u}`; };
 
@@ -47,12 +42,8 @@ export default async function Cellar({ searchParams }: { searchParams: Promise<R
       {!sp.q && (
         <>
           <Filters countries={countries} showSort />
-          {prints && prints.axes.length >= 3 && <FingerprintLegend prints={prints} />}
           <div className="grid grid-cards">
-            {wines.map((w) => (
-              <WineCard key={w.slug} w={w}
-                aside={prints && w.id && prints.wines[w.id] ? <AromaGlyph axes={prints.axes} wine={prints.wines[w.id]} palate={prints.palate} /> : undefined} />
-            ))}
+            {((data ?? []) as CardWine[]).map((w) => <WineCard key={w.slug} w={w} />)}
           </div>
           {pages > 1 && (
             <div className="row" style={{ justifyContent: 'center', marginTop: 36 }}>
@@ -66,21 +57,6 @@ export default async function Cellar({ searchParams }: { searchParams: Promise<R
           </p>
         </>
       )}
-    </div>
-  );
-}
-
-function FingerprintLegend({ prints }: { prints: Fingerprints }) {
-  return (
-    <div className="fp-legend">
-      <AromaGlyph axes={prints.axes} palate={prints.palate} size={132} labels />
-      <div className="fp-key">
-        <div className="eyebrow">Aroma fingerprints</div>
-        <div><i className="fp-swatch fp-wine" aria-hidden="true" />Each wine’s aromas by family</div>
-        {prints.palate
-          ? <div><i className="fp-swatch fp-palate" aria-hidden="true" />Your palate</div>
-          : <div className="faint"><Link href="/login" className="btn-link">Sign in</Link> to see your palate overlaid</div>}
-      </div>
     </div>
   );
 }
