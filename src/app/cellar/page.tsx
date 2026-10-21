@@ -1,9 +1,10 @@
 import Link from 'next/link';
-import { supabaseServer } from '@/lib/supabase/server';
+import { getUser } from '@/lib/supabase/server';
 import { CARD_FIELDS, getCountries } from '@/lib/data';
 import { WineCard, type CardWine } from '@/components/WineBits';
 import { Filters } from '@/components/Filters';
 import { NaturalSearch } from './NaturalSearch';
+import type { NoteRef } from '@/lib/types';
 
 export const metadata = { title: 'The cellar' };
 export const dynamic = 'force-dynamic';
@@ -11,7 +12,7 @@ const PER = 30;
 
 export default async function Cellar({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const sp = await searchParams;
-  const sb = await supabaseServer();
+  const { supabase: sb, user } = await getUser();
   const page = Math.max(1, Number(sp.page) || 1);
 
   let query = sb.from('wines').select(CARD_FIELDS, { count: 'exact' });
@@ -28,6 +29,11 @@ export default async function Cellar({ searchParams }: { searchParams: Promise<R
     query.range((page - 1) * PER, page * PER - 1),
     getCountries(sb),
   ]);
+  const wines = (data ?? []) as CardWine[];
+  // Same per-wine score as the wine page, so a card's ring matches the number you see when you open it.
+  const matches = user && !sp.q
+    ? await Promise.all(wines.map((w) => sb.rpc('wine_match', { p_wine: w.id }).then((r) => r.data as null | { match: number; reasons: NoteRef[]; cautions: NoteRef[] })))
+    : [];
   const pages = Math.ceil((count ?? 0) / PER);
   const qs = (p: number) => { const u = new URLSearchParams(sp as Record<string, string>); u.set('page', String(p)); u.delete('q'); return `?${u}`; };
 
@@ -43,7 +49,10 @@ export default async function Cellar({ searchParams }: { searchParams: Promise<R
         <>
           <Filters countries={countries} showSort />
           <div className="grid grid-cards">
-            {((data ?? []) as CardWine[]).map((w) => <WineCard key={w.slug} w={w} />)}
+            {wines.map((w, i) => {
+              const m = matches[i];
+              return <WineCard key={w.slug} w={w} match={m?.match} reasons={m?.reasons.slice(0, 3)} cautions={m?.cautions.slice(0, 2)} />;
+            })}
           </div>
           {pages > 1 && (
             <div className="row" style={{ justifyContent: 'center', marginTop: 36 }}>

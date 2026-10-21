@@ -22,7 +22,7 @@ export function MatchRing({ value, size = 'sm', label = 'match' }: { value: numb
 }
 
 export interface CardWine {
-  slug: string; name: string; producer: string; wine_type: WineType; country: string; region: string;
+  id?: string; slug: string; name: string; producer: string; wine_type: WineType; country: string; region: string;
   appellation: string | null; grapes: string[]; price_usd: number | null; community_rating?: number | null;
 }
 
