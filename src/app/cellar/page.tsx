@@ -62,7 +62,7 @@ export default async function Cellar({ searchParams }: { searchParams: Promise<R
             </div>
           )}
           <p className="faint" style={{ marginTop: 32, fontSize: '.9rem' }}>
-            Know a bottle that’s missing? <Link href="/wines/new" className="btn-link">Add it to the cellar</Link>
+            Know a bottle that’s missing? <Link href="/wines/new" className="btn-link">Look it up and add it to the cellar</Link>
           </p>
         </>
       )}

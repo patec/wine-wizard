@@ -25,7 +25,7 @@ data/typicity.mjs           grape, place and style typicity used for those estim
 scripts/validate-wines.mjs  checks wine files against the lexicon
 scripts/build-seed.mjs      emits supabase/seed/*.sql
 supabase/migrations/        schema, vector triggers, palate learning, recommend/similar/search RPCs
-supabase/functions/         search (NL query parsing + embeddings), embed-wines (backfill)
+supabase/functions/         search (NL query parsing + embeddings), embed-wines (backfill), lookup-wine (web lookup for new bottles)
 src/                        Next.js app
 ```
 
@@ -70,6 +70,22 @@ cautiously than tasted profiles. The sync workflow stops loading if the database
 - **Auth → URL Configuration:** set the Site URL to your Vercel domain so confirmation links return to the app, and
   add `http://localhost:3000/auth/callback` and `https://<your-vercel-domain>/auth/callback` to **Redirect URLs**.
   Supabase ignores any `redirectTo` that isn't on that list and sends people to the Site URL instead.
+
+### Looking up new bottles online
+
+`/wines/new` (the **Add wine** button in the header) starts with a web lookup: type a producer and wine, and the
+`lookup-wine` Edge Function has Claude search winery pages, tech sheets and reviews, then drafts the label facts,
+structure, lexicon notes and pairings into the form. Nothing is saved until the member reviews the draft and clicks
+**Add to the cellar**. Searches in the cellar link straight to a lookup of the same text.
+
+This is the one feature that isn't free: each lookup is a Claude API call with web search, usually a few cents. To turn it on:
+
+```bash
+supabase secrets set ANTHROPIC_API_KEY=sk-ant-...
+supabase functions deploy lookup-wine
+```
+
+Without the secret, the lookup says it isn't set up and the manual form still works.
 
 ### Google sign-in
 

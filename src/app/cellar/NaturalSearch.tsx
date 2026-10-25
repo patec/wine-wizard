@@ -1,4 +1,5 @@
 'use client';
+import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { supabaseBrowser } from '@/lib/supabase/client';
@@ -20,7 +21,7 @@ export function NaturalSearch({ initial }: { initial: string }) {
   const [q, setQ] = useState(initial);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [res, setRes] = useState<{ interpretation: Interp; results: Result[] } | null>(null);
+  const [res, setRes] = useState<{ query: string; interpretation: Interp; results: Result[] } | null>(null);
 
   const run = useCallback(async (text: string) => {
     if (!text.trim()) { setRes(null); return; }
@@ -75,12 +76,17 @@ export function NaturalSearch({ initial }: { initial: string }) {
       {busy && !res && <div className="grid grid-cards" style={{ marginTop: 28 }}>{[0, 1, 2].map((k) => <div key={k} className="skeleton" style={{ height: 180 }} />)}</div>}
       {res && (
         <div className="grid grid-cards" style={{ marginTop: 28, opacity: busy ? 0.5 : 1 }}>
-          {res.results.length === 0 && <div className="empty"><h3>No bottles fit that brief</h3><p>Loosen the price, or describe it another way.</p></div>}
+          {res.results.length === 0 && <div className="empty"><h3>No bottles fit that brief</h3><p>Loosen the price, or describe it another way. Looking for a particular bottle? <Link href={`/wines/new?q=${encodeURIComponent(res.query)}`} className="btn-link">Look it up online</Link> and add it.</p></div>}
           {res.results.map((w) => (
             <WineCard key={w.slug} w={w} match={w.score} matchLabel="fit"
               note={(w.matched.notes.length > 0 || w.matched.pairings.length > 0) ? <>Shows <b>{[...w.matched.notes, ...w.matched.pairings.map((p) => `a match for ${p.toLowerCase()}`)].join(', ').toLowerCase()}</b></> : null} />
           ))}
         </div>
+      )}
+      {res && res.results.length > 0 && (
+        <p className="faint" style={{ marginTop: 24, fontSize: '.9rem' }}>
+          Not seeing the bottle you meant? <Link href={`/wines/new?q=${encodeURIComponent(res.query)}`} className="btn-link">Look up “{res.query}” online</Link> and add it to the cellar.
+        </p>
       )}
     </div>
   );

@@ -38,6 +38,11 @@ export function Header({ signedIn }: { signedIn: boolean }) {
         </nav>
         <div className="header-actions">
           <ThemeToggle />
+          {signedIn && (
+            <Link href="/wines/new" className="btn btn-wine btn-sm add-wine" aria-label="Add a wine">
+              <span aria-hidden="true">+</span><span className="label">Add wine</span>
+            </Link>
+          )}
           {signedIn ? (
             <form action="/auth/signout" method="post">
               <button className="btn btn-ghost btn-sm" type="submit">Sign out</button>

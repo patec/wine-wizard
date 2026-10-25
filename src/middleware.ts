@@ -24,7 +24,8 @@ export async function middleware(request: NextRequest) {
   if (!data.user && PROTECTED.some((p) => path === p || path.startsWith(p + '/'))) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
-    url.searchParams.set('next', path);
+    url.search = '';
+    url.searchParams.set('next', path + request.nextUrl.search);
     return NextResponse.redirect(url);
   }
   return response;

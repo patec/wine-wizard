@@ -32,6 +32,7 @@ Status legend: ✅ shipped in v1 · 🔜 next · 💡 later
            │ functions.invoke     │  Edge Functions (Deno)                       │
            └─────────────────────►│   search      – parse + gte-small + RPC      │
                                   │   embed-wines – gte-small backfill           │
+                                  │   lookup-wine – Claude + web search draft    │
                                   │  Auth (email + password, Google)             │
                                   └──────────────────────────────────────────────┘
 ```
@@ -153,7 +154,7 @@ typicity (`data/typicity.mjs`), blended with the dataset's stated body, ABV and 
 | `/wines/[slug]` | Label header, match ring, tasting note, aroma wheel, notes by family, WSET structure dots, texture, service card, pairings, rate panel, "Drinks alike" |
 | `/palate` | Radar by family, loved and avoided notes, preferred structure, style affinities, how learning works |
 | `/journal` | Tasting history |
-| `/wines/new` | Profile a bottle against the lexicon (structure sliders, note intensities, pairings). It is embedded automatically |
+| `/wines/new` | Look a bottle up online (`lookup-wine`: Claude with web search drafts label facts, structure, notes and pairings from lexicon keys, with sources), or profile it by hand. The member reviews and saves; it is embedded automatically |
 | `/lexicon` | The full vector space with usage counts |
 
 ## 8. Hosting & ops

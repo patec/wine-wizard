@@ -199,6 +199,7 @@ em, .italic { font-family: var(--font-display); font-style: italic; font-size: 1
 .nav a:hover, .nav a[aria-current='page'] { color: var(--ink); border-bottom-color: var(--wine); }
 .header-actions { display: flex; gap: 10px; align-items: center; }
 .btn.menu-toggle { display: none; }
+@media (max-width: 520px) { .add-wine .label { display: none; } .add-wine { width: 32px; padding: 0; } }
 @media (max-width: 860px) {
   .nav { display: none; position: absolute; top: 64px; left: 0; right: 0; flex-direction: column; gap: 0; background: var(--paper-raised); border-bottom: 1px solid var(--rule); padding: 8px 16px 16px; }
   .nav[data-open='true'] { display: flex; }
